@@ -35,6 +35,18 @@ class Api::V1::RentsController < ApplicationController
     render json: @rent, status: :ok
   end
 
+  def assign_product
+    @rent = Rent.find(params[:rent_id])
+    @product = Product.find(params[:product_id])
+
+    ActiveRecord::Base.transaction do
+      RentProduct.create(rent: @rent, product: @product)
+    end
+
+    render json: @rent, status: :ok
+  end
+
+
   private
 
   def set_rent

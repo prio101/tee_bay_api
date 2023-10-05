@@ -17,6 +17,9 @@ class Api::V1::ProductsController < ApplicationController
   def create
     @product = Product.new(product_params)
     if @product.save
+      ActiveRecord::Base.transaction do
+        @product.images.attach(params[:images])
+      end
       render json: @product, status: :created
     end
   end
@@ -34,6 +37,20 @@ class Api::V1::ProductsController < ApplicationController
     render json: @product, status: :ok
   end
 
+  def assign_category
+    @product = Product.find(params[:product_id])
+    category_ids = params[:category_ids]
+
+    ActiveRecord::Base.transaction do
+      category_ids.each do |category_id|
+        @category = Category.find(category_id)
+        ProductCategory.create(product: @product, category: @category)
+      end
+    end
+
+    render json: @product, status: :ok
+  end
+
   private
 
   def set_product
@@ -41,6 +58,6 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def product_params
-    params.permit(:title, :description, :price)
+    params.permit(:title, :description, :price, images: [], category_ids: [])
   end
 end
