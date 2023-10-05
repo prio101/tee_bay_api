@@ -7,6 +7,8 @@ class Product < ApplicationRecord
   validates :title, presence: true, uniqueness: true
   validates :price, presence: true, numericality: { greater_than: 0 }
 
+  has_many_attached :images
+
   def self.search(search)
     if search
       where("title LIKE ?", "%#{search}%")
