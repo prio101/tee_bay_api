@@ -1,5 +1,5 @@
 # Use an official Ruby runtime as a parent image
-FROM ruby:2.7
+FROM ruby:3.0.0
 
 # Set the working directory in the container
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN bundle install
 COPY . .
 
 # Expose a port for the Rails application to run on (default is 3000)
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the Rails server
 CMD ["rails", "server", "-b", "0.0.0.0"]
