@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   def authenticate
-    user = User.find_by(username: params[:username])
+    user = User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
       token = user.generate_token
       render json: { data: "User has been authenticated", token: token }, status: :ok
@@ -13,11 +13,10 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    debugger
     if @user.save
       token = @user.generate_token
       render json: { data: "User has been created", token: token }, status: :created
-    else
-      render { data: "User has not been created" }, status: :unprocessable_entity
     end
   end
 
@@ -34,6 +33,6 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :email, :password, :password_confirmation)
+    params.require(:data).permit(:email, :password, :password_confirmation)
   end
 end

@@ -1,16 +1,17 @@
 class Api::V1::ProductsController < ApplicationController
-  before_action :authenticate, only: [:create, :update, :destroy]
+  # before_action :authenticate, only: [:create, :update, :destroy]
   before_action :set_product, only: [:show, :update, :destroy]
 
   # GET /api/v1/products
   def index
-    @products = Product.all
-    render json: @products, status: :ok
+    @products = SearchService.new(params).call
+
+    render json: ProductSerializer.new(@products), status: :ok
   end
 
   # GET /api/v1/products/1
   def show
-    render json: @product, status: :ok
+    render json:ProductSerializer.new(@product), status: :ok
   end
 
   # POST /api/v1/products
@@ -20,21 +21,21 @@ class Api::V1::ProductsController < ApplicationController
       ActiveRecord::Base.transaction do
         @product.images.attach(params[:images])
       end
-      render json: @product, status: :created
+      render json: ProductSerializer.new(@product), status: :created
     end
   end
 
   # PATCH/PUT /api/v1/products/1
   def update
     if @product.update(product_params)
-      render json: @product, status: :ok
+      render json: ProductSerializer.new(@product), status: :ok
     end
   end
 
   # DELETE /api/v1/products/1
   def destroy
     @product.destroy
-    render json: @product, status: :ok
+    render json: ProductSerializer.new(@product), status: :ok
   end
 
   def assign_category
@@ -48,13 +49,16 @@ class Api::V1::ProductsController < ApplicationController
       end
     end
 
-    render json: @product, status: :ok
+    render json: ProductSerializer.new(@product), status: :ok
   end
 
   private
 
   def set_product
-    @product = Product.find(params[:id])
+    @product = Product.find_by(id: params[:id])
+    return if @product.nil? 
+
+    @product
   end
 
   def product_params
